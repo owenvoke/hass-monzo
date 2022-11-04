@@ -31,7 +31,7 @@ CONFIGURATOR_SUBMIT_CAPTION = 'I authorized successfully'
 CONFIGURATOR_DESCRIPTION = 'To link your Monzo account, click the link, login, and authorize:'
 
 
-def is_token_expired(token_info):
+def is_token_expired(token_info) -> bool:
     now = int(time.time())
     return token_info['expires_at'] - now < 60
 
@@ -108,16 +108,12 @@ class OAuthClient:
                 f.close()
                 token_info = json.loads(token_info_string)
 
-                if self.is_token_expired(token_info):
+                if is_token_expired(token_info):
                     token_info = self.refresh_access_token(token_info['refresh_token'])
 
             except IOError:
                 pass
         return token_info
-
-    @staticmethod
-    def is_token_expired(token_info) -> bool:
-        return is_token_expired(token_info)
 
     def refresh_access_token(self, refresh_token):
         payload = {'refresh_token': refresh_token,
@@ -235,7 +231,7 @@ class MonzoSensor(Entity):
         """Fetch a new monzo instance."""
         token_refreshed = False
         need_token = (self._token_info is None or
-                      self._oauth.is_token_expired(self._token_info))
+                      is_token_expired(self._token_info))
         if need_token:
             new_token = \
                 self._oauth.refresh_access_token(
@@ -298,7 +294,7 @@ class MonzoSensor(Entity):
         """
         self.refresh_monzo_instance()
 
-        if self._oauth.is_token_expired(self._token_info):
+        if is_token_expired(self._token_info):
             _LOGGER.warning("Monzo failed to update, token expired.")
             return
 
