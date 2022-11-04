@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
+## v0.1.4 - 2022-11-04
+
+### Fixed
+- Re-add unused required `device_discovery` parameter
+
 ## v0.1.3 - 2022-11-04
 
 ### Fixed
