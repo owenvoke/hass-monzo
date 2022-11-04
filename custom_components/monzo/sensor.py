@@ -2,24 +2,18 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.core import callback
 from homeassistant.components.http import HomeAssistantView
 from requests import post
-from homeassistant.const import (
-    CONF_NAME)
+from homeassistant.const import CONF_NAME
 import logging
-import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
 import json
 import time
 import urllib.parse
 import random
 
-REQUIREMENTS = ['monzo==0.5.3']
-
 _LOGGER = logging.getLogger(__name__)
 
 ICON = 'mdi:credit-card'
 
-
-#SCOPE = 'user-read-playback-state user-modify-playback-state user-read-private'
+# SCOPE = 'user-read-playback-state user-modify-playback-state user-read-private'
 DEFAULT_CACHE_PATH = '.monzo-token-cache'
 AUTH_CALLBACK_PATH = '/api/monzo'
 AUTH_CALLBACK_NAME = 'api:monzo'
@@ -27,13 +21,13 @@ DEFAULT_NAME = 'Monzo Balance'
 DOMAIN = 'monzo'
 CONF_CLIENT_ID = 'client_id'
 CONF_CLIENT_SECRET = 'client_secret'
-CONF_CACHE_PATH = 'cache_path'
+CONF_CACHE_ID = 'cache_id'
 CONF_CURRENT_ACCOUNT = 'current_account'
 
-CONFIGURATOR_LINK_NAME = 'Link Monzo account'
+CONFIGURATOR_LINK_NAME = 'Link your Monzo account'
 CONFIGURATOR_SUBMIT_CAPTION = 'I authorized successfully'
-CONFIGURATOR_DESCRIPTION = 'To link your Monzo account, ' \
-                           'click the link, login, and authorize:'
+CONFIGURATOR_DESCRIPTION = 'To link your Monzo account, click the link, login, and authorize:'
+
 
 def is_token_expired(token_info):
     now = int(time.time())
@@ -51,19 +45,19 @@ def request_configuration(hass, config, add_devices, request_url):
         submit_caption=CONFIGURATOR_SUBMIT_CAPTION)
 
 
-def setup_platform(hass, config, add_devices, device_discovery=None):
-    """Setup the monzo platform."""
+def setup_platform(hass, config, add_devices):
+    """Set up the monzo platform."""
     client_id = config.get(CONF_CLIENT_ID)
     client_secret = config.get(CONF_CLIENT_SECRET)
     callback_url = '{}{}'.format(hass.config.api.base_url, AUTH_CALLBACK_PATH)
-    cache = config.get(CONF_CACHE_PATH, hass.config.path(DEFAULT_CACHE_PATH))
+    cache = '{}/{}'.format(hass.config.path(DEFAULT_CACHE_PATH), config.get(CONF_CACHE_ID, 'main'))
     current_account = config.get(CONF_CURRENT_ACCOUNT, False)
-    oauth = oAuthClient(client_id, client_secret, callback_url, cache_path=cache)
+    oauth = OAuthClient(client_id, client_secret, callback_url, cache_path=cache)
 
     token_info = oauth.get_cached_token()
     if not token_info:
         hass.http.register_view(MonzoAuthCallbackView(
-                config, add_devices, oauth))
+            config, add_devices, oauth))
         request_configuration(hass, config, add_devices, oauth.get_authorize_url())
         return
     if hass.data.get(DOMAIN):
@@ -73,14 +67,13 @@ def setup_platform(hass, config, add_devices, device_discovery=None):
     sensor = MonzoSensor(oauth, current_account, config.get(CONF_NAME, DEFAULT_NAME))
     add_devices([sensor])
 
-class oAuthClient():
+
+class OAuthClient:
     REQUEST_TOKEN_URL = 'https://auth.monzo.com'
     ACCESS_TOKEN_URL = 'https://api.monzo.com/oauth2/token'
 
     def __init__(self, client_id, client_secret, redirect_uri, state=None, cache_path=None):
-        '''
-            Creates an oauth client to talk to monzo
-        '''
+        """Creates an oauth client to talk to Monzo."""
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -91,8 +84,7 @@ class oAuthClient():
         self.token_info = None
 
     def get_authorize_url(self, state=None):
-        """ Gets the URL to use to authorize this app
-        """
+        """Gets the URL to use to authorize this app."""
         payload = {'client_id': self.client_id,
                    'response_type': 'code',
                    'redirect_uri': self.redirect_uri}
@@ -102,12 +94,11 @@ class oAuthClient():
         if state is not None:
             payload['state'] = state
 
-        urlparams = urllib.parse.urlencode(payload)
-        return "%s?%s" % (self.REQUEST_TOKEN_URL, urlparams)
+        url_params = urllib.parse.urlencode(payload)
+        return "%s?%s" % (self.REQUEST_TOKEN_URL, url_params)
 
     def get_cached_token(self):
-        ''' Gets a cached auth token
-        '''
+        """Gets a cached auth token."""
         token_info = None
         if self.cache_path:
             try:
@@ -123,11 +114,12 @@ class oAuthClient():
                 pass
         return token_info
 
-    def is_token_expired(self, token_info):
+    @staticmethod
+    def is_token_expired(token_info) -> bool:
         return is_token_expired(token_info)
 
     def refresh_access_token(self, refresh_token):
-        payload = { 'refresh_token': refresh_token,
+        payload = {'refresh_token': refresh_token,
                    'grant_type': 'refresh_token',
                    'client_secret': self.client_secret,
                    'client_id': self.client_id}
@@ -135,15 +127,14 @@ class oAuthClient():
         response = post(self.ACCESS_TOKEN_URL, data=payload)
         if response.status_code != 200:
             _LOGGER.warn("couldn't refresh token: code:%d reason:%s" \
-                % (response.status_code, response.reason))
+                         % (response.status_code, response.reason))
             return None
         token_info = response.json()
         token_info = self._add_custom_values_to_token_info(token_info)
-        if not 'refresh_token' in token_info:
+        if 'refresh_token' not in token_info:
             token_info['refresh_token'] = refresh_token
         self._save_token_info(token_info)
         return token_info
-
 
     def get_access_token(self, state, code):
         _LOGGER.info("Access Token from Monzo recieved. Processing now.")
@@ -151,11 +142,11 @@ class oAuthClient():
             _LOGGER.error("The state does not match what we sent... possible CQRS issue")
             return
 
-        post_url_params = { 'grant_type':'authorization_code',
-                            'client_id': self.client_id,
-                            'client_secret': self.client_secret,
-                            'redirect_uri':self.redirect_uri,
-                            'code': code }
+        post_url_params = {'grant_type': 'authorization_code',
+                           'client_id': self.client_id,
+                           'client_secret': self.client_secret,
+                           'redirect_uri': self.redirect_uri,
+                           'code': code}
 
         response = post(self.ACCESS_TOKEN_URL, data=post_url_params)
 
@@ -169,11 +160,9 @@ class oAuthClient():
 
         return token_info
 
-    def _add_custom_values_to_token_info(self, token_info):
-        """
-        Store some values that aren't directly provided by a Web API
-        response.
-        """
+    @staticmethod
+    def _add_custom_values_to_token_info(token_info):
+        """Store some values that aren't directly provided by a Web API response."""
         token_info['expires_at'] = int(time.time()) + token_info['expires_in']
         return token_info
 
@@ -186,15 +175,19 @@ class oAuthClient():
             except IOError:
                 _LOGGER.warn("couldn't write token cache to " + self.cache_path)
 
-    def _generate_nonce(self, length=8):
+    @staticmethod
+    def _generate_nonce(length=8):
         """Generate pseudorandom number."""
         return ''.join([str(random.randint(0, 9)) for i in range(length)])
+
 
 class MonzoAccountError(Exception):
     pass
 
+
 class MonzoOauthError(Exception):
     pass
+
 
 class MonzoAuthCallbackView(HomeAssistantView):
     """Monzo Authorization Callback View."""
@@ -218,6 +211,7 @@ class MonzoAuthCallbackView(HomeAssistantView):
         self.oauth.get_access_token(state, code)
 
         hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
+
 
 class MonzoSensor(Entity):
     """Representation of a Sensor."""
@@ -306,9 +300,9 @@ class MonzoSensor(Entity):
             _LOGGER.warning("Monzo failed to update, token expired.")
             return
 
-        balance = self._client.get_balance(self._account_id) # Get your balance object
-        self._state = balance['balance']/100
-        self._spend_today = balance['spend_today']/100 # Get amount spent today
+        balance = self._client.get_balance(self._account_id)  # Get your balance object
+        self._state = balance['balance'] / 100
+        self._spend_today = balance['spend_today'] / 100  # Get amount spent today
         currency = balance['currency']
         if currency == 'GBP':
             currency = '£'
