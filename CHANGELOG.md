@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
+## v0.1.2 - 2022-11-04
+
+### Fixed
+- Use development `main` branch for `monzo` fork
+
 ## v0.1.1 - 2022-11-04
 
 ### Fixed
