@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
-## v0.1.0 - 2022-11-03
+## v0.1.1 - 2022-11-04
+
+### Fixed
+- Add missing HACS `iot_class` property
+- Use forked `monzo` package
+
+## v0.1.0 - 2022-11-04
 
 ### Changed
 - Add support for HACS
