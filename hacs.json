@@ -1,5 +1,6 @@
 {
   "name": "Monzo",
   "render_readme": true,
-  "homeassistant": "2022.10.4"
+  "homeassistant": "2022.10.4",
+  "iot_class": "cloud_polling"
 }
