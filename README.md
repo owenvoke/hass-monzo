@@ -26,7 +26,7 @@ If you want to use the sensor with multiple accounts ensure you have added all t
 
 ### Dependencies
 
-This component relies on the [monzo](https://github.com/adesnmi/monzo-python) Python package, an unofficial client for the Monzo API.
+This component relies on [my fork](https://github.com/owenvoke/monzo-python) of the [monzo](https://github.com/adesnmi/monzo-python) Python package, an unofficial client for the Monzo API.
 
 ## Usage
 
