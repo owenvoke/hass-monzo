@@ -5,5 +5,5 @@
   "dependencies": [],
   "version": "0.1.0",
   "codeowners": ["@owenvoke"],
-  "requirements": ["git+https://github.com/owenvoke/monzo-python"]
+  "requirements": ["git+https://github.com/owenvoke/monzo-python.git@main#monzo==0.11.0"]
 }
