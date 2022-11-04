@@ -1,0 +1,9 @@
+{
+  "domain": "monzo",
+  "name": "Monzo",
+  "documentation": "https://github.com/owenvoke/hass-monzo",
+  "dependencies": [],
+  "version": "0.1.0",
+  "codeowners": ["@owenvoke"],
+  "requirements": ["monzo==0.10.0"]
+}
