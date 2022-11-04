@@ -126,7 +126,7 @@ class OAuthClient:
 
         response = post(self.ACCESS_TOKEN_URL, data=payload)
         if response.status_code != 200:
-            _LOGGER.warn("couldn't refresh token: code:%d reason:%s" \
+            _LOGGER.warning("couldn't refresh token: code:%d reason:%s" \
                          % (response.status_code, response.reason))
             return None
         token_info = response.json()
@@ -137,7 +137,7 @@ class OAuthClient:
         return token_info
 
     def get_access_token(self, state, code):
-        _LOGGER.info("Access Token from Monzo recieved. Processing now.")
+        _LOGGER.info("Access Token from Monzo received. Processing now.")
         if state != self.state:
             _LOGGER.error("The state does not match what we sent... possible CQRS issue")
             return
@@ -150,7 +150,7 @@ class OAuthClient:
 
         response = post(self.ACCESS_TOKEN_URL, data=post_url_params)
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise MonzoOauthError(response.reason)
 
         token_info = response.json()
@@ -173,7 +173,7 @@ class OAuthClient:
                 f.write(json.dumps(token_info))
                 f.close()
             except IOError:
-                _LOGGER.warn("couldn't write token cache to " + self.cache_path)
+                _LOGGER.warning("couldn't write token cache to " + self.cache_path)
 
     @staticmethod
     def _generate_nonce(length=8):
@@ -285,8 +285,7 @@ class MonzoSensor(Entity):
     @property
     def device_state_attributes(self):
         """Return device specific state attributes."""
-        attrs = {}
-        attrs['spend_today'] = self._spend_today
+        attrs = {'spend_today': self._spend_today}
         return attrs
 
     def update(self):
