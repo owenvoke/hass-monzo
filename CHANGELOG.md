@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
+## v0.1.5 - 2022-11-04
+
+### Fixed
+- Use `get_url` instead of old method to retrieve URL
+- Prefer external or cloud URLs
+
 ## v0.1.4 - 2022-11-04
 
 ### Fixed
