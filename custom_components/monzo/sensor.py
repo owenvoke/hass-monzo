@@ -4,11 +4,12 @@ from homeassistant.core import callback
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.network import get_url
 from requests import post
-import logging
 import json
+import logging
+from pathlib import Path
+import random
 import time
 import urllib.parse
-import random
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,8 +58,7 @@ def setup_platform(hass, config, add_devices, device_discovery=None):
 
     token_info = oauth.get_cached_token()
     if not token_info:
-        hass.http.register_view(MonzoAuthCallbackView(
-            config, add_devices, oauth))
+        hass.http.register_view(MonzoAuthCallbackView(config, add_devices, oauth))
         request_configuration(hass, config, add_devices, oauth.get_authorize_url())
         return
     if hass.data.get(DOMAIN):
@@ -127,8 +127,7 @@ class OAuthClient:
 
         response = post(self.ACCESS_TOKEN_URL, data=payload)
         if response.status_code != 200:
-            _LOGGER.warning("couldn't refresh token: code:%d reason:%s" \
-                         % (response.status_code, response.reason))
+            _LOGGER.warning("Couldn't refresh token: code:%d reason:%s" % (response.status_code, response.reason))
             return None
         token_info = response.json()
         token_info = self._add_custom_values_to_token_info(token_info)
@@ -170,11 +169,14 @@ class OAuthClient:
     def _save_token_info(self, token_info):
         if self.cache_path:
             try:
+                cache_dir = Path(self.cache_path).parent
+                if not Path(cache_dir).exists():
+                    cache_dir.mkdir(parents=True, exist_ok=True)
                 f = open(self.cache_path, 'w')
                 f.write(json.dumps(token_info))
                 f.close()
             except IOError:
-                _LOGGER.warning("couldn't write token cache to " + self.cache_path)
+                _LOGGER.warning("Couldn't write token cache to " + self.cache_path)
 
     @staticmethod
     def _generate_nonce(length=8):
@@ -203,13 +205,13 @@ class MonzoAuthCallbackView(HomeAssistantView):
         self.oauth = oauth
 
     @callback
-    def get(self, request):
+    async def get(self, request):
         """Receive authorization token."""
         hass = request.app['hass']
 
         state = request.query['state']
         code = request.query['code']
-        self.oauth.get_access_token(state, code)
+        await hass.async_add_executor_job(self.oauth.get_access_token, state, code)
 
         hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
 
