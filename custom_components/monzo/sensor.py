@@ -50,7 +50,7 @@ def setup_platform(hass, config, add_devices, device_discovery=None):
     """Set up the monzo platform."""
     client_id = config.get(CONF_CLIENT_ID)
     client_secret = config.get(CONF_CLIENT_SECRET)
-    callback_url = '{}{}'.format(get_url(hass), AUTH_CALLBACK_PATH)
+    callback_url = '{}{}'.format(get_url(hass, prefer_external=True, prefer_cloud=True), AUTH_CALLBACK_PATH)
     cache = '{}/{}'.format(hass.config.path(DEFAULT_CACHE_PATH), config.get(CONF_CACHE_ID, 'main'))
     current_account = config.get(CONF_CURRENT_ACCOUNT, False)
     oauth = OAuthClient(client_id, client_secret, callback_url, cache_path=cache)
