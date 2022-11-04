@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
+## v0.1.6 - 2022-11-04
+
+### Fixed
+- Resolve OAuth token flow
+
 ## v0.1.5 - 2022-11-04
 
 ### Fixed
