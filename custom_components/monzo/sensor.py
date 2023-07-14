@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -7,25 +6,40 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import MonzoUpdateCoordinator
-from .entity import MonzoSensorEntity
+from .coordinator import MonzoUpdateCoordinator
 from .const import (
     SENSOR_KEY_BALANCE,
+    DOMAIN,
+    SENSOR_KEY_TOTAL_BALANCE,
+    SENSOR_KEY_CURRENCY,
+    SENSOR_KEY_SPEND_TODAY,
 )
-
-DOMAIN = "tier"
+from .entity import MonzoSensorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-SCAN_INTERVAL = timedelta(minutes=5)
-
 SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=SENSOR_KEY_BALANCE,
         name="Balance",
-        icon="mdi:credit-card",
+        icon="mdi:piggy-bank-outline",
+    ),
+    SensorEntityDescription(
+        key=SENSOR_KEY_TOTAL_BALANCE,
+        name="Total Balance",
+        icon="mdi:piggy-bank",
+    ),
+    SensorEntityDescription(
+        key=SENSOR_KEY_CURRENCY,
+        name="Currency",
+        icon="mdi:cash",
+    ),
+    SensorEntityDescription(
+        key=SENSOR_KEY_SPEND_TODAY,
+        name="Spend Today",
+        icon="mdi:bank-transfer-out",
     ),
 )
 
