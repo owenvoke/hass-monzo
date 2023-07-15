@@ -57,10 +57,10 @@ class MonzoUpdateCoordinator(DataUpdateCoordinator):
                     lambda: self._monzo.get_first_account()
                 )
 
-                if not account:
-                    raise MonzoAccountError("No accounts could not be found.")
-
                 self._account_id = account["id"]
+
+            if self._account_id is None:
+                raise MonzoAccountError("No account id was configured.")
 
             return await self.hass.async_add_executor_job(
                 lambda: self._monzo.get_balance(self._account_id)

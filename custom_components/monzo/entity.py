@@ -5,7 +5,13 @@ from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, SENSOR_KEY_BALANCE
+from .const import (
+    DOMAIN,
+    SENSOR_KEY_BALANCE,
+    SENSOR_KEY_TOTAL_BALANCE,
+    SENSOR_KEY_CURRENCY,
+    SENSOR_KEY_SPEND_TODAY,
+)
 from .coordinator import MonzoUpdateCoordinator
 
 
@@ -33,13 +39,13 @@ class MonzoSensorEntity(CoordinatorEntity[MonzoUpdateCoordinator], SensorEntity)
         if self.entity_description.key == SENSOR_KEY_BALANCE:
             return self.coordinator.data["balance"] / 100
 
-        if self.entity_description.key == SENSOR_KEY_BALANCE:
+        if self.entity_description.key == SENSOR_KEY_TOTAL_BALANCE:
             return self.coordinator.data["total_balance"] / 100
 
-        if self.entity_description.key == SENSOR_KEY_BALANCE:
+        if self.entity_description.key == SENSOR_KEY_CURRENCY:
             return self.coordinator.data["currency"]
 
-        if self.entity_description.key == SENSOR_KEY_BALANCE:
+        if self.entity_description.key == SENSOR_KEY_SPEND_TODAY:
             return self.coordinator.data["spend_today"] / 100
 
         return STATE_UNAVAILABLE

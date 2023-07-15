@@ -43,9 +43,6 @@ To get a client ID and secret go to [the Monzo developer site](https://developer
 click `+ New OAuth Client`. Ensure you have set the confidentiality to "Confidential", and set the redirect URL
 to `https://my.home-assistant.io/redirect/oauth`.
 
-If you want to use the sensor with multiple accounts ensure you have added all the users to the "collaborators" in the
-OAuth client registration with Monzo.
-
 ## Security
 
 If you discover any security related issues, please email security@voke.dev instead of using the issue tracker.
