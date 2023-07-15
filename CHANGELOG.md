@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## Unreleased
 
+## v0.2.0 - 2023-07-15
+
+### Added
+- Add multiple sensors (Balance, Currency, Spend Today, Total Balance)
+
+### Changed
+- Update to use Config Flow
+- Update to use native OAuth via Application Credentials
+
 ## v0.1.6 - 2022-11-04
 
 ### Fixed
