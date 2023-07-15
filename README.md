@@ -30,7 +30,7 @@ A [Monzo](https://monzo.com) sensor for Home Assistant
 
 ### Dependencies
 
-This component relies on [my fork](https://github.com/owenvoke/monzo-python) of
+This component relies on [my fork](https://github.com/owenvoke/monzo-python-sdk) of
 the [monzo](https://github.com/adesnmi/monzo-python) Python package, an unofficial client for the Monzo API.
 
 ### Usage
@@ -39,16 +39,12 @@ This can be configured fully via the Integrations interface. Click the following
 
 [![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=monzo)
 
-Set `current_account` to `true` only if you have a Monzo current account.
-
 To get a client ID and secret go to [the Monzo developer site](https://developers.monzo.com/apps/home) and
 click `+ New OAuth Client`. Ensure you have set the confidentiality to "Confidential", and set the redirect URL
-to `http://ip-of-hass:8123/api/monzo`.
+to `https://my.home-assistant.io/redirect/oauth`.
 
 If you want to use the sensor with multiple accounts ensure you have added all the users to the "collaborators" in the
 OAuth client registration with Monzo.
-
-The "Scan interval" can also be configured, this defaults to polling the API every 120 minutes (2 hours).
 
 ## Security
 
