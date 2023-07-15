@@ -58,7 +58,7 @@ class MonzoUpdateCoordinator(DataUpdateCoordinator):
                 )
 
                 if not account:
-                    raise MonzoAccountError('No accounts could not be found.')
+                    raise MonzoAccountError("No accounts could not be found.")
 
                 self._account_id = account["id"]
 
